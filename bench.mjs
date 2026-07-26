@@ -1,6 +1,7 @@
 import sindresorhusFnv1a from '@sindresorhus/fnv1a'
 import fnvLite from 'fnv-lite'
 import fnvPlus from 'fnv-plus'
+import { fnv1a52, fnv1a52base36, fnv1a52hex } from 'fnv1a52'
 import { bench, group, run } from 'mitata'
 import murmurhash from 'murmurhash'
 import xxhash from 'xxhashjs'
@@ -16,6 +17,9 @@ for (const [label, input] of [['short key', short], ['1KB string', long]]) {
     bench('fnv1a-64 (base36)', () => fnv1a64Base36(input))
     bench('@sindresorhus/fnv1a size:64', () => sindresorhusFnv1a(input, { size: 64 }))
     bench('fnv-plus fast1a64 (64-bit)', () => fnvPlus.fast1a64(input))
+    bench('fnv1a52 (52-bit)', () => fnv1a52(input))
+    bench('fnv1a52 hex (52-bit)', () => fnv1a52hex(input))
+    bench('fnv1a52 base36 (52-bit)', () => fnv1a52base36(input))
     bench('fnv-lite hex (128-bit)', () => fnvLite.hex(input))
     bench('xxhashjs h64', () => xxhash.h64(input, 0).toString(16))
     bench('murmurhash v3 (32-bit)', () => murmurhash.v3(input))

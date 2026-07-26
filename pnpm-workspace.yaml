@@ -11,3 +11,6 @@ allowBuilds:
 
 overrides:
   fnv1a-64: 'link:.'
+
+minimumReleaseAgeExclude:
+  - fnv1a52@1.0.0
