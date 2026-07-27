@@ -78,6 +78,18 @@ export function fnv1a64BigInt(str: string): bigint {
   return (BigInt(high) << 32n) | BigInt(low)
 }
 
+const hexDigits = '0123456789abcdef'
+
+/**
+ * Every byte value rendered as its two hex digits, so a 32-bit lane formats in
+ * 4 lookups instead of `toString(16)` plus a `padStart`. Leading zeros are
+ * intrinsic to the table, which is what makes the padding free.
+ */
+const hexPairs: string[] = Array.from(
+  { length: 256 },
+  (_, i) => hexDigits.charAt(i >> 4) + hexDigits.charAt(i & 15),
+)
+
 /**
  * Compute the 64-bit FNV-1a hash of a string as a 16-character zero-padded
  * lowercase hex string.
@@ -90,7 +102,17 @@ export function fnv1a64BigInt(str: string): bigint {
  */
 export function fnv1a64Hex(str: string): string {
   const { high, low } = fnv1a64(str)
-  return high.toString(16).padStart(8, '0') + low.toString(16).padStart(8, '0')
+  // @ts-expect-error -- every index is masked to a byte, so all eight reads are
+  // in range; only the first needs asserting, as it types the whole `+` chain.
+  const head: string = hexPairs[high >>> 24]
+  return head
+    + hexPairs[(high >>> 16) & 0xFF]
+    + hexPairs[(high >>> 8) & 0xFF]
+    + hexPairs[high & 0xFF]
+    + hexPairs[low >>> 24]
+    + hexPairs[(low >>> 16) & 0xFF]
+    + hexPairs[(low >>> 8) & 0xFF]
+    + hexPairs[low & 0xFF]
 }
 
 /**
